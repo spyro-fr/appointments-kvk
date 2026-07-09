@@ -4,10 +4,10 @@ import io
 import sys
 from pathlib import Path
 
-from src.config import DEFAULT_OUTPUT, DEFAULT_TEMPLATE
+from src.config import *
 from src.csv_reader import load_players
 from src.scheduler import assign_slots, get_unassigned
-from src.xlsx_writer import write_schedule
+from src.xlsx_writer import write_schedule_per_days
 
 
 def parse_args() -> argparse.Namespace:
@@ -21,6 +21,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("-t", "--template", type=Path, default=DEFAULT_TEMPLATE)
     parser.add_argument("-o", "--output", type=Path, default=DEFAULT_OUTPUT)
     return parser.parse_args()
+
+
+def build_slots_sequence_for_day() -> list[int]:
+    return list(range(SLOTS_PER_DAY))
 
 
 def main() -> int:
