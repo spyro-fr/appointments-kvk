@@ -1,7 +1,7 @@
 import csv
 from pathlib import Path
 
-from src.config import COL_AVAILABILITY, COL_PSEUDO, COL_SPEEDUPS
+from src.config import COL_AVAILABILITIES, COL_PSEUDO, COL_SPEEDUPS
 from src.models import Player
 from src.time_slots import parse_availability
 
@@ -21,24 +21,33 @@ def load_players(csv_path: Path) -> list[Player]:
         next(reader, None)
 
         for row in reader:
-            if len(row) <= COL_AVAILABILITY:
+            # require at least pseudo and speedups
+            if len(row) <= COL_PSEUDO:
                 continue
 
             pseudo = row[COL_PSEUDO].strip()
             if not pseudo:
                 continue
 
-            speedups = _parse_speedups(row[COL_SPEEDUPS])
-            slots = parse_availability(row[COL_AVAILABILITY])
+            speedups = _parse_speedups(row[COL_SPEEDUPS]) if len(row) > COL_SPEEDUPS else 0
 
-            if not slots:
+            per_day_slots = []
+            for col in COL_AVAILABILITIES:
+                if len(row) > col:
+                    slots = parse_availability(row[col])
+                else:
+                    slots = frozenset()
+                per_day_slots.append(slots)
+
+            # if player has no availability in any day, skip
+            if not any(per_day_slots):
                 continue
 
             players.append(
                 Player(
                     pseudo=pseudo,
                     speedups=speedups,
-                    slot_indices=slots,
+                    slot_indices=per_day_slots,
                 )
             )
 

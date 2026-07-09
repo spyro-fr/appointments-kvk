@@ -38,21 +38,35 @@ def main() -> int:
         print("Aucun joueur avec des disponibilites valides trouve.", file=sys.stderr)
         return 1
 
-    schedule = assign_slots(players)
-    write_schedule(schedule, args.template, args.output)
+    slots_seq = build_slots_sequence_for_day()
 
-    assigned_count = sum(1 for p in players if p.is_assigned)
-    unassigned = get_unassigned(players)
+    schedules = []
+    all_unassigned = {}
+    total_assigned = 0
+
+    for day in range(NUM_DAYS):
+        # clear any previous per-day assignments
+        for p in players:
+            p.assigned_slot_per_day.pop(day, None)
+
+        schedule = assign_slots(players, day, slots_seq)
+        schedules.append(schedule)
+
+        unassigned = get_unassigned(players, day)
+        all_unassigned[day] = unassigned
+        total_assigned += sum(1 for p in players if p.is_assigned_for_day(day))
+
+    write_schedule_per_days(schedules, args.template, args.output)
 
     print(f"Joueurs lus          : {len(players)}")
-    print(f"Creneaux remplis     : {len(schedule)}/48")
-    print(f"Joueurs affilies     : {assigned_count}")
-    print(f"Joueurs non affilies : {len(unassigned)}")
+    print(f"Total creneaux (par jour): {SLOTS_PER_DAY + 1}")
+    print(f"Joueurs affilies (somme sur jours) : {total_assigned}")
 
-    if unassigned:
-        print("\nNon affilies :")
-        for player in sorted(unassigned, key=lambda p: (-p.speedups, p.pseudo)):
-            print(f"  - {player.pseudo} ({player.speedups} speedups)")
+    for day in range(NUM_DAYS):
+        print(f"\nJour {day + 1} - Non affilies : {len(all_unassigned[day])}")
+        if all_unassigned[day]:
+            for player in sorted(all_unassigned[day], key=lambda p: (-p.speedups, p.pseudo)):
+                print(f"  - {player.pseudo} ({player.speedups} speedups)")
 
     print(f"\nFichier genere : {args.output}")
     return 0
