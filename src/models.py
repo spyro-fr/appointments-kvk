@@ -9,6 +9,8 @@ class Player:
     # optional fields from CSV
     alliance_trigram: str = ""
     player_id: str = ""
+    # estimated resource points for day 1 (computed as TrueGold*2000 + speedups*30)
+    resource_points: int = 0
     # whether the player asked for an appointment for each day (list of booleans, length NUM_DAYS)
     wants_appointment: List[bool] = field(default_factory=list)
     # slot_indices_per_day: list of frozenset[int], length NUM_DAYS

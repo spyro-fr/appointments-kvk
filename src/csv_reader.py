@@ -97,6 +97,10 @@ def load_players(csv_path: Path) -> list[Player]:
             val = row[col].strip() if len(row) > col and row[col] is not None else ""
             wants.append(val.lower().startswith("y"))
 
+        # parse TrueGold (col index 6) to compute resource points for day 1
+        truegold = _parse_speedups(row[6]) if len(row) > 6 else 0
+        resource_points = truegold * 2000 + speedups * 30
+
         per_day_slots = []
         for col in COL_AVAILABILITIES:
             if len(row) > col:
@@ -115,6 +119,7 @@ def load_players(csv_path: Path) -> list[Player]:
                 speedups=speedups,
                 alliance_trigram=alliance,
                 player_id=player_id,
+                resource_points=resource_points,
                 wants_appointment=wants,
                 slot_indices=per_day_slots,
             )

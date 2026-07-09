@@ -8,6 +8,12 @@ from src.models import Player
 def _sort_for_assignment(players: List[Player], day: int) -> List[Player]:
     # Only consider players who asked for an appointment for this day
     eligible = [p for p in players if hasattr(p, "wants_appointment") and len(p.wants_appointment) > day and p.wants_appointment[day]]
+    if day == 0:
+        # day 1: sort by resource points (higher preferred)
+        return sorted(
+            eligible,
+            key=lambda p: (len(p.availability_for_day(day)), -p.resource_points, p.pseudo.lower()),
+        )
     return sorted(
         eligible,
         key=lambda p: (len(p.availability_for_day(day)), -p.speedups, p.pseudo.lower()),
@@ -59,7 +65,12 @@ def assign_slots(players: List[Player], day: int, slots_sequence: List[int]) -> 
         ]
         if not candidates:
             continue
-        best = max(candidates, key=lambda p: (p.speedups, p.pseudo.lower()))
+        if day == 0:
+            best = max(candidates, key=lambda p: (p.resource_points, -ord(p.pseudo[0]) if p.pseudo else 0, p.pseudo.lower()))
+            # above uses resource_points as primary; tie-break by pseudo lexicographically
+            best = max(candidates, key=lambda p: (p.resource_points, p.pseudo.lower()))
+        else:
+            best = max(candidates, key=lambda p: (p.speedups, p.pseudo.lower()))
         schedule[row_idx] = best
         best.assign_for_day(day, row_idx)
         assigned_pseudos.add(best.pseudo)
@@ -81,15 +92,25 @@ def _apply_speedup_replacements(players: List[Player], day: int, schedule: dict[
         if not unassigned or not assigned:
             continue
 
-        unassigned.sort(key=lambda p: (-p.speedups, p.pseudo.lower()))
+        if day == 0:
+            # use resource_points for replacements on day 1
+            unassigned.sort(key=lambda p: (-p.resource_points, p.pseudo.lower()))
+        else:
+            unassigned.sort(key=lambda p: (-p.speedups, p.pseudo.lower()))
 
         for candidate in unassigned:
-            replaceable = [p for p in assigned if p.speedups < candidate.speedups]
+            if day == 0:
+                replaceable = [p for p in assigned if p.resource_points < candidate.resource_points]
+            else:
+                replaceable = [p for p in assigned if p.speedups < candidate.speedups]
             if not replaceable:
                 continue
 
-            # choose victim with lowest speedups (and then lexicographically)
-            victim = min(replaceable, key=lambda p: (p.speedups, p.pseudo.lower()))
+            # choose victim with lowest metric (and then lexicographically)
+            if day == 0:
+                victim = min(replaceable, key=lambda p: (p.resource_points, p.pseudo.lower()))
+            else:
+                victim = min(replaceable, key=lambda p: (p.speedups, p.pseudo.lower()))
             # victim's row
             victim_row = victim.assigned_slot_per_day.get(day)
             if victim_row is None:

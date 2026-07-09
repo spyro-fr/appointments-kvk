@@ -66,6 +66,12 @@ def main() -> int:
     print(f"Total creneaux (par jour): {SLOTS_PER_DAY + 1}")
     print(f"Joueurs affilies (somme sur jours) : {total_assigned}")
 
+    # total estimated resource points for day 1 (if any assignments)
+    sum_points_day1 = 0
+    if schedules and len(schedules) > 0:
+        sum_points_day1 = sum(p.resource_points for p in schedules[0].values())
+    print(f"Total estimated resource points (Day 1) : {sum_points_day1}")
+
     for day in range(NUM_DAYS):
         print(f"\nJour {day + 1} - Non affilies : {len(all_unassigned[day])}")
         if all_unassigned[day]:
