@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-wheel-metadata/
+*.egg-info/
+dist/
+build/
+.eggs/
+pyproject.toml.lock
+
+# Virtualenv
+env/
+venv/
+.venv/
+ENV/
+BUILD/
+develop-eggs/
+downloads/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg
+*.egg-info/
+.installed.cfg
+*.egg-info
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+*.DS_Store
+Thumbs.db
+
+# Logs / output
+*.log
+output/
+
+/\#1881 KvK Prep Week Sign Up.csv
