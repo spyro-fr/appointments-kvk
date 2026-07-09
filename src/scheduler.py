@@ -6,8 +6,10 @@ from src.models import Player
 
 
 def _sort_for_assignment(players: List[Player], day: int) -> List[Player]:
+    # Only consider players who asked for an appointment for this day
+    eligible = [p for p in players if hasattr(p, "wants_appointment") and len(p.wants_appointment) > day and p.wants_appointment[day]]
     return sorted(
-        players,
+        eligible,
         key=lambda p: (len(p.availability_for_day(day)), -p.speedups, p.pseudo.lower()),
     )
 
@@ -45,10 +47,15 @@ def assign_slots(players: List[Player], day: int, slots_sequence: List[int]) -> 
     for row_idx, slot_idx in enumerate(slots_sequence):
         if row_idx in schedule:
             continue
+        # candidates must be eligible (asked for appointment) and available for this slot
         candidates = [
             p
             for p in players
-            if (not p.is_assigned_for_day(day)) and (slot_idx in p.availability_for_day(day))
+            if (not p.is_assigned_for_day(day))
+            and (slot_idx in p.availability_for_day(day))
+            and hasattr(p, "wants_appointment")
+            and len(p.wants_appointment) > day
+            and p.wants_appointment[day]
         ]
         if not candidates:
             continue

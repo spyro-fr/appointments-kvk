@@ -74,6 +74,8 @@ def load_players(csv_path: Path) -> list[Player]:
             dedup[key] = (row, ts)
 
     # now build Player objects from deduplicated rows
+    # columns 6,10,13 (1-based) -> 0-based 5,9,12 are the yes/no flags for the 3 days
+    DAY_FLAG_COLS = [5, 9, 12]
     for row, _ in dedup.values():
         # require at least pseudo and speedups
         if len(row) <= COL_PSEUDO:
@@ -88,6 +90,12 @@ def load_players(csv_path: Path) -> list[Player]:
         # parse optional fields: alliance trigram (col 2) and player id (col 3)
         alliance = row[2].strip() if len(row) > 2 and row[2] is not None else ""
         player_id = row[3].strip() if len(row) > 3 and row[3] is not None else ""
+
+        # parse want flags per day
+        wants: list[bool] = []
+        for col in DAY_FLAG_COLS:
+            val = row[col].strip() if len(row) > col and row[col] is not None else ""
+            wants.append(val.lower().startswith("y"))
 
         per_day_slots = []
         for col in COL_AVAILABILITIES:
@@ -107,6 +115,7 @@ def load_players(csv_path: Path) -> list[Player]:
                 speedups=speedups,
                 alliance_trigram=alliance,
                 player_id=player_id,
+                wants_appointment=wants,
                 slot_indices=per_day_slots,
             )
         )

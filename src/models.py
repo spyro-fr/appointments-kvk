@@ -9,6 +9,8 @@ class Player:
     # optional fields from CSV
     alliance_trigram: str = ""
     player_id: str = ""
+    # whether the player asked for an appointment for each day (list of booleans, length NUM_DAYS)
+    wants_appointment: List[bool] = field(default_factory=list)
     # slot_indices_per_day: list of frozenset[int], length NUM_DAYS
     slot_indices: List[frozenset] = field(default_factory=list)
     # For per-day assignment we'll store assigned_slot_per_day as dict day->row index
