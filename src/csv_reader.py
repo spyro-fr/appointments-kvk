@@ -109,7 +109,7 @@ def load_players(csv_path: Path) -> list[Player]:
 
         # parse TrueGold (col index 6) to compute resource points for day 1
         truegold = _parse_speedups(row[6]) if len(row) > 6 else 0
-        resource_points = truegold * 2000 + speedups * 30
+        resource_points = truegold * 2000 + speedups * 30 * 3600 * 24
 
         per_day_slots = []
         for col in COL_AVAILABILITIES:

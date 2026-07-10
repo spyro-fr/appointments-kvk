@@ -47,9 +47,9 @@ def ensure_template(template_path: Path) -> None:
 
         # column headers in row 2
         if day_index == 0:
-            headers = ["Slot", "Pseudo", "Trigram", "ID", "Number of speedups", "Number of TrueGold"]
+            headers = ["Slot", "Pseudo", "Trigram", "ID", "Number of speedup days", "Number of TrueGold"]
         else:
-            headers = ["Slot", "Pseudo", "Trigram", "ID", "Number of speedups"]
+            headers = ["Slot", "Pseudo", "Trigram", "ID", "Number of speedup days"]
 
         for i, h in enumerate(headers):
             cell = ws.cell(row=2, column=base + i, value=h)
@@ -60,8 +60,8 @@ def ensure_template(template_path: Path) -> None:
         # advance base by cols + one separator
         base += cols + 1
 
-    # create labels: first the previous-day 23:45, then the usual SLOTS_PER_DAY labels
-    labels = ["23:45 (veille)"] + generate_slot_labels()
+    # create labels: first the previous-day 23:45, then the usual SLOTS_PER_DAY labels (English)
+    labels = ["23:45 (previous day)"] + generate_slot_labels()
     for i, label in enumerate(labels, start=3):
         # write the slot label in each table's Slot column for visual alignment
         base = 1
