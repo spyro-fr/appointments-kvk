@@ -42,6 +42,16 @@ def load_players(csv_path: Path) -> list[Player]:
         reader = csv.reader(handle)
         next(reader, None)
         raw_rows = list(reader)
+        # remove unwanted extra column at index 1 (0-based) if present
+        if raw_rows:
+            cleaned = []
+            for row in raw_rows:
+                if len(row) > 1:
+                    # drop the column at index 1
+                    cleaned.append(row[:1] + row[2:])
+                else:
+                    cleaned.append(row)
+            raw_rows = cleaned
 
     # deduplicate by pseudo (case-insensitive): keep the row with the most recent timestamp
     dedup: dict[str, tuple[list, object]] = {}
@@ -120,6 +130,7 @@ def load_players(csv_path: Path) -> list[Player]:
                 alliance_trigram=alliance,
                 player_id=player_id,
                 resource_points=resource_points,
+                truegold=truegold,
                 wants_appointment=wants,
                 slot_indices=per_day_slots,
             )
